@@ -13,6 +13,7 @@ from model.permission_model import Permission
 from model.role_model import Role
 from model.user_model import User
 from model.permission_role import permission_role
+from model.parties_model import Party
 
 # Alembic Config object, which provides access to values within the .ini file in use.
 config = context.config
