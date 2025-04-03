@@ -3,3 +3,4 @@
 .vscode
 .ropeproject
 __pycache__
+alembic.ini
