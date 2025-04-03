@@ -5,6 +5,7 @@ from model.permission_model import Permission
 from model.role_model import Role
 from model.user_model import User
 from model.permission_role import permission_role
+from model.parties_model import Party
 import os
 from dotenv import load_dotenv
 
