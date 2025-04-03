@@ -6,7 +6,7 @@ from .role_user import role_user
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    email = Column(String, nullable=False)
+    email = Column(String(50), nullable=False)
     username = Column(String(35), nullable=False)
     password = Column(String(50), nullable=False)
     roles = relationship(

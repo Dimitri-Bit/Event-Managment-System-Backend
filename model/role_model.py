@@ -6,7 +6,7 @@ from .permission_role import permission_role
 class Role(Base):
     __tablename__ = 'roles'
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String(35), nullable=False)
     description = Column(String(40), nullable=True)
     permissions = relationship(
         "Permission",
