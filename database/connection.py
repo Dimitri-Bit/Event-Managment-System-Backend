@@ -18,7 +18,7 @@ engine = create_engine(
     pool_pre_ping=True,
     echo=True
 );
-Base.metadata.create_all(engine);
+# Base.metadata.create_all(engine);
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine);
 
 def get_db():
