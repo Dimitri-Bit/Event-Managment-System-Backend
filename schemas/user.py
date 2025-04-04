@@ -4,7 +4,7 @@ from .role import RoleResponse
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=35);
     email: EmailStr
-    password: str = Field(min_length=5, max_length=50);
+    password: str = Field(min_length=5, max_length=255);
 
 class UserCreateResponse(BaseModel):
     id: int
@@ -18,9 +18,9 @@ class UserCreateResponse(BaseModel):
 class UserResponse(UserCreateResponse):
     roles: list[RoleResponse]
 
-class LoginRequest(BaseModel):
+class UserLogin(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=5, max_length=50);
+    password: str = Field(min_length=5, max_length=255);
 
     class Config:
         orm_mode = True;

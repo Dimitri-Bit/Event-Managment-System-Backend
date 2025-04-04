@@ -8,7 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String(50), nullable=False)
     username = Column(String(35), nullable=False)
-    password = Column(String(50), nullable=False)
+    password = Column(String(255), nullable=False)
     roles = relationship(
         "Role",
         secondary=role_user,
