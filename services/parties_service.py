@@ -37,6 +37,7 @@ class PartiesService:
         text_entry_fee=party_request.text_entry_fee,
         text_more=party_request.text_more,
         url_organizer=party_request.url_organizer,
-        url_party=party_request.url_party
+        url_party=party_request.url_party,
+        user_id=party_request.user_id
     )
     

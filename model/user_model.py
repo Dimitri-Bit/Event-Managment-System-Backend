@@ -14,3 +14,5 @@ class User(Base):
         secondary=role_user,
         backref="parents"
     )
+
+    parties = relationship("Party", back_populates="user")
