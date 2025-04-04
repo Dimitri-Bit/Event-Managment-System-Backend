@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime,ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -18,5 +18,9 @@ class Party(Base):
     text_more = Column(Text, nullable=True) 
     url_organizer = Column(String(500), nullable=True)  
     url_party = Column(String(500), nullable=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False) 
+    user = relationship("User", back_populates="parties")  
+
     class Config:
         orm_mode = True
