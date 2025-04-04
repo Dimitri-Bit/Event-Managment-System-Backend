@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
+from jwt import InvalidTokenError
 from repository.user_repository import UserRepository
 from config import settings
 from util.jwt_manager import JWTManager
@@ -17,6 +18,26 @@ class AuthService:
             access_token_expire_minutes = settings.settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
         self.password_manager = PasswordManager()
+
+    async def get_current_user(self, token:str) -> User:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        try:
+            payload = self.jwt_manager.decode_token(token)
+            assert isinstance(payload, dict)
+            email = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+        except InvalidTokenError:
+            raise credentials_exception
+
+        user = await self.repository.get_user_by_email(email)
+        if user is None:
+            raise credentials_exception
+        return user
 
     async def authenticate_user(self, email: str, password: str) -> Union[User, bool]:
         user = await self.repository.get_user_by_email(email)
