@@ -28,7 +28,7 @@ async def register_party(party: PartyCreate, service: Annotated[PartiesService, 
     It returns a list of parties with their respective details.""",
     response_model=List[PartyResponse]
 )
-def get_all_parties(
+async def get_all_parties(
     service: Annotated[PartiesService, Depends(PartiesService)],
     name_party: Optional[str] = Query(None, description="Filter by party name"),
     name_organizer: Optional[str] = Query(None, description="Filter by organizer name"),
@@ -37,9 +37,25 @@ def get_all_parties(
     date_start: Optional[str] = Query(None, description="Filter by start date (YYYY-MM-DD)")
 ):
     try:
-        return service.get_all_parties(name_party, name_organizer, name_town, name_country, date_start)
+        parties = await service.get_all_parties(name_party, name_organizer, name_town, name_country, date_start)
+        return parties
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get(
+    path="/{party_id}",
+    summary="Retrieve a party by ID",
+    description="""This endpoint fetches the details of a party based on the provided party ID.""",
+    response_model=PartyResponse
+)
+async def get_party_by_id(
+    party_id: int, 
+    service: Annotated[PartiesService, Depends(PartiesService)]
+):
+    party = await service.get_party_by_id(party_id)
+    if party is None:
+        raise HTTPException(status_code=404, detail="Party not found")
+    return party
 
 
 @router.put(
