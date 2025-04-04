@@ -10,12 +10,30 @@ class PartyRepository(Base):
         self.db.flush()
         return party
 
-    def get_all_parties(self) -> List[Party]:
+    def get_all_parties(self, 
+                        name_party: Optional[str] = None, 
+                        name_organizer: Optional[str] = None, 
+                        name_town: Optional[str] = None,
+                        name_country: Optional[str] = None, 
+                        date_start: Optional[str] = None) -> List[Party]:
         try:
-            return self.db.query(Party).all()
+            query = self.db.query(Party)
+
+            # Apply filters if provided
+            if name_party:
+                query = query.filter(Party.name_party.ilike(f"%{name_party}%"))
+            if name_organizer:
+                query = query.filter(Party.name_organizer.ilike(f"%{name_organizer}%"))
+            if name_town:
+                query = query.filter(Party.name_town.ilike(f"%{name_town}%"))
+            if name_country:
+                query = query.filter(Party.name_country.ilike(f"%{name_country}%"))
+            if date_start:
+                query = query.filter(Party.date_start >= date_start)
+
+            return query.all()
         except SQLAlchemyError as e:
             raise e
-
             
 
     def get_party_by_id(self, party_id: int) -> Party:
@@ -51,28 +69,4 @@ class PartyRepository(Base):
             self.db.commit()
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise e
-
-    def get_filtered_parties(self, 
-                             name_party: Optional[str] = None, 
-                             name_organizer: Optional[str] = None, 
-                             name_town: Optional[str] = None,
-                             name_country: Optional[str] = None,
-                             date_start: Optional[str] = None) -> List[Party]:
-        try:
-            query = self.db.query(Party)
-
-            if name_party:
-                query = query.filter(Party.name_party.ilike(f"%{name_party}%"))
-            if name_organizer:
-                query = query.filter(Party.name_organizer.ilike(f"%{name_organizer}%"))
-            if name_town:
-                query = query.filter(Party.name_town.ilike(f"%{name_town}%"))
-            if name_country:
-                query = query.filter(Party.name_country.ilike(f"%{name_country}%"))
-            if date_start:
-                query = query.filter(Party.date_start >= date_start)
-
-            return query.all()
-        except SQLAlchemyError as e:
             raise e

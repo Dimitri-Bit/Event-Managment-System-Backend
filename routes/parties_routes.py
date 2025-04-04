@@ -27,31 +27,11 @@ def register_party(party: PartyCreate, service: Annotated[PartiesService, Depend
 @router.get(
     path="/",
     summary="Retrieve all parties",
-    description="""
-    This endpoint fetches all registered parties from the database.  
-    It returns a list of parties with their respective details.
-    """,
+    description="""This endpoint fetches all registered parties from the database.
+    It returns a list of parties with their respective details.""",
     response_model=List[PartyResponse]
 )
-def get_all_parties(service: Annotated[PartiesService, Depends(PartiesService)]):
-    return service.get_all_parties()
-
-#filtering parties
-@router.get(
-    path="/filter",
-    summary="Filter parties by different fields",
-    description="""This endpoint allows users to filter parties based on multiple criteria such as party name, organizer, town, country, and start date.  
-    Users can specify one or more parameters to filter the results:
-    - `name_party`: The name of the party.
-    - `name_organizer`: The name of the organizer.
-    - `name_town`: The town where the party is being held.
-    - `name_country`: The country where the party is taking place.
-    - `date_start`: The start date of the party in `YYYY-MM-DD` format.
-    
-    If no filters are provided, all parties will be returned.""",
-    response_model=List[PartyResponse]
-)
-def filter_parties(
+def get_all_parties(
     service: Annotated[PartiesService, Depends(PartiesService)],
     name_party: Optional[str] = Query(None, description="Filter by party name"),
     name_organizer: Optional[str] = Query(None, description="Filter by organizer name"),
@@ -60,9 +40,10 @@ def filter_parties(
     date_start: Optional[str] = Query(None, description="Filter by start date (YYYY-MM-DD)")
 ):
     try:
-        return service.get_filtered_parties(name_party, name_organizer, name_town, name_country, date_start)
+        return service.get_all_parties(name_party, name_organizer, name_town, name_country, date_start)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 
 
