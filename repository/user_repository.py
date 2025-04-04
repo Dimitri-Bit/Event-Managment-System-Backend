@@ -1,35 +1,51 @@
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+
+from model.role_model import Role
 from .base import Base
 from model.user_model import User
 
 class UserRepository(Base):
-
-    def create_user(self, user: User) -> User:
-        self.db.add(user);
-        self.db.commit();
-        self.db.flush();
-        return user;
-
-
-    def get_users(self):
+    async def create_user(self, user: User) -> User:
         try:
-            return self.db.query(User).all()
-        except Exception as e:
-            print(f"Error fetching roles: {e}")
+            self.db.add(user)
+            await self.db.commit()
+            await self.db.refresh(user)
+            return user
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            print(f"Database error occurred: {e}")
             raise e
 
-
-    def delete_users(self, user_id: int):
+    async def get_users(self):
         try:
-            print(f"Attempting to delete user with ID: {user_id}")
-            user = self.db.query(User).filter(User.id == user_id).first()
+            result = await self.db.execute(select(User))
+            return result.scalars().all()
+        except Exception as e:
+            print(f"Error fetching users: {e}")
+            raise e
+
+    async def get_user_by_id(self, id:int) -> User | None:
+        try:
+            result = await self.db.execute(select(User).options(joinedload(User.roles).joinedload(Role.permissions)).filter(User.id==id))
+            return result.scalar()
+        except Exception as e:
+            print(f"Error fetching users: {e}")
+            raise e
+
+    async def delete_users(self, user_id: int):
+        try:
+            result = await self.db.execute(select(User).filter(User.id == user_id))
+            user = result.scalars().first()
 
             if not user:
                 return None
 
-            self.db.delete(user)
-            self.db.commit()
+            await self.db.delete(user)
+            await self.db.commit()
             return user
         except SQLAlchemyError as e:
             print(f"Database error occurred: {e}")
+            await self.db.rollback()
             raise e
