@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated,Optional,List
 
 from fastapi.params import Depends
 from repository.parties_repository import PartyRepository
@@ -16,12 +16,25 @@ class PartiesService:
 
     def get_all_parties(self) -> list[Party]:
         return self.repository.get_all_parties()
+
+    def get_party_by_id(self, party_id: int) -> Party:
+        return self.repository.get_party_by_id(party_id)
     
     def update_party(self, party_id: int, update_request: dict) -> Party:
         return self.repository.update_party(party_id, update_request)
 
     def delete_party(self, party_id: int) -> None:
         self.repository.delete_party(party_id)
+
+    def get_filtered_parties(self, 
+                             name_party: Optional[str], 
+                             name_organizer: Optional[str], 
+                             name_town: Optional[str],
+                             name_country: Optional[str], 
+                             date_start: Optional[str]) -> List[Party]:
+        return self.repository.get_filtered_parties(
+            name_party, name_organizer, name_town, name_country, date_start
+        )
 
 
     def map_create_party(self,party_request: PartyCreate) -> Party:

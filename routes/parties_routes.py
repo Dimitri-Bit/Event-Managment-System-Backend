@@ -1,6 +1,6 @@
-from typing import Annotated, List
+from typing import Annotated, List,Optional
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends,Query
 from fastapi.responses import Response
 
 from schemas.parties import PartyCreate, PartyUpdate, PartyResponse
@@ -35,6 +35,55 @@ def register_party(party: PartyCreate, service: Annotated[PartiesService, Depend
 )
 def get_all_parties(service: Annotated[PartiesService, Depends(PartiesService)]):
     return service.get_all_parties()
+
+#filtering parties
+@router.get(
+    path="/filter",
+    summary="Filter parties by different fields",
+    description="""This endpoint allows users to filter parties based on multiple criteria such as party name, organizer, town, country, and start date.  
+    Users can specify one or more parameters to filter the results:
+    - `name_party`: The name of the party.
+    - `name_organizer`: The name of the organizer.
+    - `name_town`: The town where the party is being held.
+    - `name_country`: The country where the party is taking place.
+    - `date_start`: The start date of the party in `YYYY-MM-DD` format.
+    
+    If no filters are provided, all parties will be returned.""",
+    response_model=List[PartyResponse]
+)
+def filter_parties(
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    name_party: Optional[str] = Query(None, description="Filter by party name"),
+    name_organizer: Optional[str] = Query(None, description="Filter by organizer name"),
+    name_town: Optional[str] = Query(None, description="Filter by town"),
+    name_country: Optional[str] = Query(None, description="Filter by country"),
+    date_start: Optional[str] = Query(None, description="Filter by start date (YYYY-MM-DD)")
+):
+    try:
+        return service.get_filtered_parties(name_party, name_organizer, name_town, name_country, date_start)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
+
+# get party by id
+@router.get(
+    path="/{party_id}",
+    summary="Retrieve a party by ID",
+    description="""
+    This endpoint fetches a specific party using its ID.  
+    If the party ID does not exist, it returns a 404 error.
+    """,
+    response_model=PartyResponse
+)
+def get_party_by_id(party_id: int, service: Annotated[PartiesService, Depends(PartiesService)]):
+    party = service.get_party_by_id(party_id)
+    if not party:
+        raise HTTPException(status_code=404, detail="Party not found")
+    return party
+
+    
 
 
 #update party
@@ -79,3 +128,4 @@ def delete_party(party_id: int, service: PartiesService = Depends(PartiesService
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
