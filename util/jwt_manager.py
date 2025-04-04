@@ -8,12 +8,10 @@ class JWTManager:
         self.algorithm = algorithm
         self.access_token_expire_minutes = access_token_expire_minutes
 
-    def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
+    def create_access_token(self, data: dict):
         to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.now(timezone.utc) + expires_delta
-        else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        access_token_expires = timedelta(minutes=self.access_token_expire_minutes)
+        expire = datetime.now(timezone.utc) + access_token_expires
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt

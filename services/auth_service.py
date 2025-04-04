@@ -1,11 +1,12 @@
 from typing import Annotated
-from fastapi.params import Depends
+from fastapi import Depends, HTTPException, status
 from repository.user_repository import UserRepository
 from config import settings
 from util.jwt_manager import JWTManager
 from util.password_manager import PasswordManager
 from model.user_model import User
 from typing import Union
+from schemas.auth import Token
 
 class AuthService:
     def __init__(self, repository: Annotated[UserRepository, Depends(UserRepository)]):
@@ -28,6 +29,19 @@ class AuthService:
         if not self.password_manager.verify_password(password, user.password):
             return False
         return user
+
+    async def login(self, email: str, password: str) -> Token:
+        user = await self.authenticate_user(email, password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        assert isinstance(user, User)
+        access_token = self.jwt_manager.create_access_token(data={"sub": user.email})
+        return Token(access_token=access_token, token_type="bearer")
 
     async def test(self):
         print("Key", settings.settings.SECRET_KEY)
