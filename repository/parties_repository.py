@@ -1,72 +1,81 @@
 from sqlalchemy.exc import SQLAlchemyError
 from .base import Base
 from model.parties_model import Party
-from typing import List,Optional
+from typing import Sequence, Optional
+from sqlalchemy import select
 
 class PartyRepository(Base):
-    def create_parties(self, party: Party) -> Party:
+    async def create_parties(self, party: Party) -> Party:
         self.db.add(party)
-        self.db.commit()
-        self.db.flush()
+        await self.db.commit()
+        await self.db.flush()
         return party
-
-    def get_all_parties(self, 
-                        name_party: Optional[str] = None, 
-                        name_organizer: Optional[str] = None, 
-                        name_town: Optional[str] = None,
-                        name_country: Optional[str] = None, 
-                        date_start: Optional[str] = None) -> List[Party]:
+      
+    async def get_all_parties(self,
+                              name_party: Optional[str] = None,
+                              name_organizer: Optional[str] = None,
+                              name_town: Optional[str] = None,
+                              name_country: Optional[str] = None,
+                              date_start: Optional[str] = None) -> Sequence[Party]:
         try:
-            query = self.db.query(Party)
+            query = select(Party)
+            filters = []
 
-            # Apply filters if provided
             if name_party:
-                query = query.filter(Party.name_party.ilike(f"%{name_party}%"))
+                filters.append(Party.name_party.ilike(f"%{name_party}%"))
             if name_organizer:
-                query = query.filter(Party.name_organizer.ilike(f"%{name_organizer}%"))
+                filters.append(Party.name_organizer.ilike(f"%{name_organizer}%"))
             if name_town:
-                query = query.filter(Party.name_town.ilike(f"%{name_town}%"))
+                filters.append(Party.name_town.ilike(f"%{name_town}%"))
             if name_country:
-                query = query.filter(Party.name_country.ilike(f"%{name_country}%"))
+                filters.append(Party.name_country.ilike(f"%{name_country}%"))
             if date_start:
-                query = query.filter(Party.date_start >= date_start)
+                filters.append(Party.date_start >= date_start)
 
-            return query.all()
+            if filters:
+                query = query.where(*filters)
+
+            result = await self.db.execute(query)
+            return result.scalars().all()
+
         except SQLAlchemyError as e:
             raise e
-            
 
-    def get_party_by_id(self, party_id: int) -> Party:
+    async def get_party_by_id(self, party_id: int) -> Optional[Party]:
         try:
-            return self.db.query(Party).filter(Party.id == party_id).first()
+            query = select(Party).where(Party.id == party_id)
+            result = await self.db.execute(query)
+            return result.scalars().first()
         except SQLAlchemyError as e:
             raise e
 
-    def update_party(self, party_id: int, update_data: dict) -> Party:
+    async def update_party(self, party_id: int, update_data: dict) -> Party:
         try:
-            db_party = self.db.query(Party).filter(Party.id == party_id).first()
+            result = await self.db.execute(select(Party).filter(Party.id == party_id))
+            db_party = result.scalars().first()
             if not db_party:
                 raise ValueError("Party not found")
-            
-           
+
             for key, value in update_data.items():
                 setattr(db_party, key, value)
 
             self.db.add(db_party)
-            self.db.commit()
-            self.db.refresh(db_party)
+            await self.db.commit()
+            await self.db.refresh(db_party)
             return db_party
         except SQLAlchemyError as e:
-            self.db.rollback()
+            await self.db.rollback()
             raise e
 
-    def delete_party(self, party_id: int) -> None:
+    async def delete_party(self, party_id: int) -> None:
         try:
-            party = self.db.query(Party).filter(Party.id == party_id).first()
+            result = await self.db.execute(select(Party).filter(Party.id == party_id))
+            party = result.scalars().first()
             if not party:
                 raise ValueError("Party not found")
-            self.db.delete(party)
-            self.db.commit()
+
+            await self.db.delete(party)
+            await self.db.commit()
         except SQLAlchemyError as e:
-            self.db.rollback()
+            await self.db.rollback()
             raise e

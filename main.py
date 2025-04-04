@@ -1,8 +1,16 @@
 from fastapi import FastAPI
 from routes import user_routes,parties_routes
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from database.database import sessionmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    if sessionmanager._engine is not None:
+        await sessionmanager.close()
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

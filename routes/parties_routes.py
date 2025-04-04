@@ -1,29 +1,26 @@
 from typing import Annotated, List,Optional
 
 from fastapi import APIRouter, HTTPException, status, Depends,Query
+from typing import Annotated, List
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import Response
-
 from schemas.parties import PartyCreate, PartyUpdate, PartyResponse
 from services.parties_service import PartiesService
 
 router = APIRouter(prefix="/party", tags=["Party"])
 
-
-#create party
 @router.post(
     path="/",
     summary="Register a new party",
     description="""
-    This endpoint allows users to register a new party in the database.  
+    This endpoint allows users to register a new party in the database.
     It accepts party details as input and returns the created party data.
     """,
     response_model=PartyResponse
 )
-def register_party(party: PartyCreate, service: Annotated[PartiesService, Depends(PartiesService)]):
-    return service.add_party(party)
+async def register_party(party: PartyCreate, service: Annotated[PartiesService, Depends(PartiesService)]):
+    return await service.add_party(party)
 
-
-# get parties
 @router.get(
     path="/",
     summary="Retrieve all parties",
@@ -45,67 +42,42 @@ def get_all_parties(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-
-
-
-# get party by id
-@router.get(
-    path="/{party_id}",
-    summary="Retrieve a party by ID",
-    description="""
-    This endpoint fetches a specific party using its ID.  
-    If the party ID does not exist, it returns a 404 error.
-    """,
-    response_model=PartyResponse
-)
-def get_party_by_id(party_id: int, service: Annotated[PartiesService, Depends(PartiesService)]):
-    party = service.get_party_by_id(party_id)
-    if not party:
-        raise HTTPException(status_code=404, detail="Party not found")
-    return party
-
-    
-
-
-#update party
 @router.put(
     path="/{party_id}",
     summary="Update an existing party",
     description="""
-    This endpoint updates an existing party's details based on the provided party ID.  
+    This endpoint updates an existing party's details based on the provided party ID.
     It accepts partial updates, meaning only the provided fields will be changed.
-    
+
     - If the party ID does not exist, it returns a 404 error.
     """,
     response_model=PartyResponse
 )
-def update_party(
+async def update_party(
     party_id: int,
     update_request: PartyUpdate,
     service: Annotated[PartiesService, Depends(PartiesService)]
 ):
     try:
-        updated_party = service.update_party(party_id, update_request.dict(exclude_unset=True))
+        updated_party = await service.update_party(party_id, update_request.dict(exclude_unset=True))
         return updated_party
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-  
-#delete party
 @router.delete(
     path="/{party_id}",
     summary="Delete a party",
     description="""
-    This endpoint deletes a party based on the provided party ID.  
+    This endpoint deletes a party based on the provided party ID.
     If the party ID is not found, it raises a 404 error.
-    
+
     - Successful deletion returns a 204 No Content response.
     """,
     status_code=status.HTTP_204_NO_CONTENT
 )
-def delete_party(party_id: int, service: PartiesService = Depends(PartiesService)):
+async def delete_party(party_id: int, service: Annotated[PartiesService, Depends(PartiesService)]):
     try:
-        service.delete_party(party_id)
+        await service.delete_party(party_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

@@ -6,15 +6,17 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=5, max_length=50);
 
-class UserResponse(BaseModel):
+class UserCreateResponse(BaseModel):
     id: int
     username: str
     email: str
-    roles: list[RoleResponse]
 
     class Config:
         orm_mode = True
         from_attributes = True
+
+class UserResponse(UserCreateResponse):
+    roles: list[RoleResponse]
 
 class LoginRequest(BaseModel):
     email: EmailStr
