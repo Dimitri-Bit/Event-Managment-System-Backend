@@ -1,3 +1,6 @@
+from typing import Annotated, List,Optional
+
+from fastapi import APIRouter, HTTPException, status, Depends,Query
 from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import Response
@@ -21,14 +24,23 @@ async def register_party(party: PartyCreate, service: Annotated[PartiesService, 
 @router.get(
     path="/",
     summary="Retrieve all parties",
-    description="""
-    This endpoint fetches all registered parties from the database.
-    It returns a list of parties with their respective details.
-    """,
+    description="""This endpoint fetches all registered parties from the database.
+    It returns a list of parties with their respective details.""",
     response_model=List[PartyResponse]
 )
-async def get_all_parties(service: Annotated[PartiesService, Depends(PartiesService)]):
-    return await service.get_all_parties()
+def get_all_parties(
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    name_party: Optional[str] = Query(None, description="Filter by party name"),
+    name_organizer: Optional[str] = Query(None, description="Filter by organizer name"),
+    name_town: Optional[str] = Query(None, description="Filter by town"),
+    name_country: Optional[str] = Query(None, description="Filter by country"),
+    date_start: Optional[str] = Query(None, description="Filter by start date (YYYY-MM-DD)")
+):
+    try:
+        return service.get_all_parties(name_party, name_organizer, name_town, name_country, date_start)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.put(
     path="/{party_id}",
@@ -69,3 +81,4 @@ async def delete_party(party_id: int, service: Annotated[PartiesService, Depends
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+

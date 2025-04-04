@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, Optional, List
 from fastapi.params import Depends
 from repository.parties_repository import PartyRepository
 from schemas.parties import PartyCreate
@@ -12,8 +12,16 @@ class PartiesService:
         db_party = self.map_create_party(create_request)
         return await self.repository.create_parties(db_party)
 
-    async def get_all_parties(self) -> List[Party]:
-        return await self.repository.get_all_parties()
+    async def get_all_parties(self, 
+                              name_party: Optional[str] = None, 
+                              name_organizer: Optional[str] = None, 
+                              name_town: Optional[str] = None,
+                              name_country: Optional[str] = None, 
+                              date_start: Optional[str] = None) -> List[Party]:
+        return await self.repository.get_all_parties(name_party, name_organizer, name_town, name_country, date_start)
+
+    async def get_party_by_id(self, party_id: int) -> Optional[Party]:
+        return await self.repository.get_party_by_id(party_id)
 
     async def update_party(self, party_id: int, update_request: dict) -> Party:
         return await self.repository.update_party(party_id, update_request)

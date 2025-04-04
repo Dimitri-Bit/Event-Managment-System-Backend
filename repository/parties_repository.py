@@ -1,7 +1,7 @@
 from sqlalchemy.exc import SQLAlchemyError
 from .base import Base
 from model.parties_model import Party
-from typing import List, Sequence
+from typing import Sequence, Optional
 from sqlalchemy import select
 
 class PartyRepository(Base):
@@ -10,12 +10,42 @@ class PartyRepository(Base):
         await self.db.commit()
         await self.db.flush()
         return party
-
-    async def get_all_parties(self) -> List[Party]:
+      
+    async def get_all_parties(self,
+                              name_party: Optional[str] = None,
+                              name_organizer: Optional[str] = None,
+                              name_town: Optional[str] = None,
+                              name_country: Optional[str] = None,
+                              date_start: Optional[str] = None) -> Sequence[Party]:
         try:
-            result = await self.db.execute(select(Party))
-            parties: Sequence[Party] = result.scalars().all()
-            return list(parties)
+            query = select(Party)
+            filters = []
+
+            if name_party:
+                filters.append(Party.name_party.ilike(f"%{name_party}%"))
+            if name_organizer:
+                filters.append(Party.name_organizer.ilike(f"%{name_organizer}%"))
+            if name_town:
+                filters.append(Party.name_town.ilike(f"%{name_town}%"))
+            if name_country:
+                filters.append(Party.name_country.ilike(f"%{name_country}%"))
+            if date_start:
+                filters.append(Party.date_start >= date_start)
+
+            if filters:
+                query = query.where(*filters)
+
+            result = await self.db.execute(query)
+            return result.scalars().all()
+
+        except SQLAlchemyError as e:
+            raise e
+
+    async def get_party_by_id(self, party_id: int) -> Optional[Party]:
+        try:
+            query = select(Party).where(Party.id == party_id)
+            result = await self.db.execute(query)
+            return result.scalars().first()
         except SQLAlchemyError as e:
             raise e
 
