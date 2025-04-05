@@ -3,9 +3,13 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from schemas.user import UserCreate
 from services.user_service import UserService
-from schemas.user import UserResponse, UserCreateResponse
+from schemas.user import UserResponse
+from fastapi.security import OAuth2PasswordBearer
+from services.auth_service import AuthService
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.post(path="/", summary="Register a new user in the database", response_model=UserResponse)
 async def register_user(user: UserCreate, service: Annotated[UserService, Depends(UserService)]):
@@ -17,10 +21,13 @@ async def register_user(user: UserCreate, service: Annotated[UserService, Depend
     user_response = await service.add_user(user)
     return user_response;
 
-@router.get(path="/{id}", response_model=UserResponse)
-async def get_user_by_id(id: int, service: Annotated[UserService, Depends(UserService)]):
-    user_response = await service.get_user_by_id(id);
-    return user_response;
+@router.get(path="/me", response_model=UserResponse)
+async def get_user_by_id(
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    user = await auth_service.get_current_user(token)
+    return user;
 
 # @router.get(path="/",summary="Retrieve a list of all users from the database", response_model=list[UserResponse])
 # def get_all_users(db: Session = Depends(get_db)):

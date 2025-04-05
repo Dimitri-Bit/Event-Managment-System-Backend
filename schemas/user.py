@@ -10,7 +10,7 @@ class UserCreateResponse(BaseModel):
     id: int
     username: str
     email: str
-    image_url:str
+    image_url:str | None
 
     class Config:
         orm_mode = True
