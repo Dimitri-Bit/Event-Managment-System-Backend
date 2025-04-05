@@ -22,10 +22,13 @@ async def register_user(user: UserCreate, service: Annotated[UserService, Depend
     return user_response;
 
 @router.get(path="/me", response_model=UserResponse)
-async def get_user_by_id(
+async def get_current_user(
     auth_service: Annotated[AuthService, Depends(AuthService)],
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
+    """
+    Get info about current authenticated user
+    """
     user = await auth_service.get_current_user(token)
     return user;
 

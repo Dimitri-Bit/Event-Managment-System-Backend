@@ -50,6 +50,20 @@ async def get_all_parties(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get(
+    path="/mine",
+    response_model=List[PartyResponse]
+)
+async def get_current_user_parties(
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    user = await auth_service.get_current_user(token)
+    user_id = user.id
+    assert isinstance(user_id, int)
+    return await service.get_parties_by_user_id(user_id)
+
+@router.get(
     path="/{party_id}",
     summary="Retrieve a party by ID",
     description="""This endpoint fetches the details of a party based on the provided party ID.""",

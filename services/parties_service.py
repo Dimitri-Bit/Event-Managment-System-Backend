@@ -27,6 +27,9 @@ class PartiesService:
     async def update_party(self, party_id: int, update_request: dict) -> Party:
         return await self.repository.update_party(party_id, update_request)
 
+    async def get_parties_by_user_id(self, user_id: int) -> Sequence[Party]:
+        return await self.repository.get_parties_by_user_id(user_id)
+
     async def delete_party(self, party_id: int) -> None:
         await self.repository.delete_party(party_id)
 
