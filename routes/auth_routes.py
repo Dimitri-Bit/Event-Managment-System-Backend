@@ -13,6 +13,9 @@ async def login(
     service: Annotated[AuthService, Depends(AuthService)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
+    """
+    Authentication endpoint via email & password, returns a JWT token
+    """
     email = form_data.username
     password = form_data.password
 

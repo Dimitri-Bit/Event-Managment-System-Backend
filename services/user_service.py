@@ -19,6 +19,13 @@ class UserService:
         db_user = await self.repository.get_user_by_id(id);
         return db_user;
 
+    async def update_user_image_url(self, user_email: str, image_url: str):
+        try:
+            user = await self.repository.update_user_image_url(user_email, image_url)
+            return user
+        except Exception as e:
+            raise e
+
     def map_register_request(self, register_request: UserCreate) -> User:
         return User(
             email=register_request.email,

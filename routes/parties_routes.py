@@ -50,6 +50,20 @@ async def get_all_parties(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get(
+    path="/mine",
+    response_model=List[PartyResponse]
+)
+async def get_current_user_parties(
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    user = await auth_service.get_current_user(token)
+    user_id = user.id
+    assert isinstance(user_id, int)
+    return await service.get_parties_by_user_id(user_id)
+
+@router.get(
     path="/{party_id}",
     summary="Retrieve a party by ID",
     description="""This endpoint fetches the details of a party based on the provided party ID.""",
@@ -84,7 +98,10 @@ async def update_party(
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
     try:
-        updated_party = await service.update_party(party_id, update_request.dict(exclude_unset=True))
+        user = await auth_service.get_current_user(token)
+        user_id = user.id
+        assert isinstance(user_id, int)
+        updated_party = await service.update_party(party_id, user_id, update_request.dict(exclude_unset=True))
         return updated_party
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -107,7 +124,10 @@ async def delete_party(
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
     try:
-        await service.delete_party(party_id)
+        user = await auth_service.get_current_user(token)
+        user_id = user.id
+        assert isinstance(user_id, int)
+        await service.delete_party(party_id, user_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

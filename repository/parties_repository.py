@@ -41,6 +41,14 @@ class PartyRepository(Base):
         except SQLAlchemyError as e:
             raise e
 
+    async def get_parties_by_user_id(self, user_id: int) -> Sequence[Party]:
+        try:
+            query = select(Party).where(Party.user_id == user_id)
+            result = await self.db.execute(query)
+            return result.unique().scalars().all()
+        except SQLAlchemyError as e:
+            raise e
+
     async def get_party_by_id(self, party_id: int) -> Optional[Party]:
         try:
             query = select(Party).where(Party.id == party_id)
