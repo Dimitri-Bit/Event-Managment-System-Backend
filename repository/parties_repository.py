@@ -8,9 +8,9 @@ class PartyRepository(Base):
     async def create_parties(self, party: Party) -> Party:
         self.db.add(party)
         await self.db.commit()
-        await self.db.flush()
+        await self.db.refresh(party)
         return party
-      
+
     async def get_all_parties(self,
                               name_party: Optional[str] = None,
                               name_organizer: Optional[str] = None,
@@ -36,7 +36,7 @@ class PartyRepository(Base):
                 query = query.where(*filters)
 
             result = await self.db.execute(query)
-            return result.scalars().all()
+            return result.unique().scalars().all()
 
         except SQLAlchemyError as e:
             raise e

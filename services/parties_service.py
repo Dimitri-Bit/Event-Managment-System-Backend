@@ -1,5 +1,6 @@
 from typing import Annotated, Optional, Sequence
 from fastapi.params import Depends
+from model.user_model import User
 from repository.parties_repository import PartyRepository
 from schemas.parties import PartyCreate
 from model.parties_model import Party
@@ -8,8 +9,8 @@ class PartiesService:
     def __init__(self, repository: Annotated[PartyRepository, Depends(PartyRepository)]):
         self.repository = repository
 
-    async def add_party(self, create_request: PartyCreate) -> Party:
-        db_party = self.map_create_party(create_request)
+    async def add_party(self, create_request: PartyCreate, user: User) -> Party:
+        db_party = self.map_create_party(create_request, user)
         return await self.repository.create_parties(db_party)
 
     async def get_all_parties(self,
@@ -29,11 +30,11 @@ class PartiesService:
     async def delete_party(self, party_id: int) -> None:
         await self.repository.delete_party(party_id)
 
-    def map_create_party(self, party_request: PartyCreate) -> Party:
+    def map_create_party(self, party_request: PartyCreate, user: User) -> Party:
         return Party(
             name_party=party_request.name_party,
             url_image_full=party_request.url_image_full,
-            name_organizer=party_request.name_organizer,
+            name_organizer=user.username,
             date_start=party_request.date_start,
             date_end=party_request.date_end,
             name_town=party_request.name_town,
@@ -43,5 +44,5 @@ class PartiesService:
             text_more=party_request.text_more,
             url_organizer=party_request.url_organizer,
             url_party=party_request.url_party,
-            user_id=party_request.user_id
+            user_id=user.id
         )

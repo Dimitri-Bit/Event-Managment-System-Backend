@@ -25,7 +25,8 @@ async def register_party(
     auth_service: Annotated[AuthService, Depends(AuthService)],
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
-    return await service.add_party(party)
+    user = await auth_service.get_current_user(token);
+    return await service.add_party(party, user)
 
 @router.get(
     path="/",
