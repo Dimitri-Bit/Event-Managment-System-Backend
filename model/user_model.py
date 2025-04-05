@@ -9,6 +9,7 @@ class User(Base):
     email = Column(String(50), nullable=False)
     username = Column(String(35), nullable=False)
     password = Column(String(255), nullable=False)
+    image_url = Column(String(255), nullable=True)
     roles = relationship(
         "Role",
         secondary=role_user,
