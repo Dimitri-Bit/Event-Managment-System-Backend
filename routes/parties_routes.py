@@ -98,7 +98,10 @@ async def update_party(
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
     try:
-        updated_party = await service.update_party(party_id, update_request.dict(exclude_unset=True))
+        user = await auth_service.get_current_user(token)
+        user_id = user.id
+        assert isinstance(user_id, int)
+        updated_party = await service.update_party(party_id, user_id, update_request.dict(exclude_unset=True))
         return updated_party
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

@@ -25,8 +25,16 @@ class PartiesService:
     async def get_party_by_id(self, party_id: int) -> Optional[Party]:
         return await self.repository.get_party_by_id(party_id)
 
-    async def update_party(self, party_id: int, update_request: dict) -> Party:
+    async def update_party(self, party_id: int, user_id: int, update_request: dict) -> Party:
+        party = await self.repository.get_party_by_id(party_id)
+        if party is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Party not found")
+
+        if party.user_id != user_id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "You can't do that big boy")
+
         return await self.repository.update_party(party_id, update_request)
+
 
     async def get_parties_by_user_id(self, user_id: int) -> Sequence[Party]:
         return await self.repository.get_parties_by_user_id(user_id)
