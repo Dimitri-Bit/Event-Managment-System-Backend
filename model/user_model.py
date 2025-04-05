@@ -12,7 +12,8 @@ class User(Base):
     roles = relationship(
         "Role",
         secondary=role_user,
-        backref="parents"
+        backref="parents",
+        lazy="joined"
     )
 
     parties = relationship("Party", back_populates="user")

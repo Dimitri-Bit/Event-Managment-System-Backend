@@ -14,13 +14,13 @@ class Party(Base):
     name_town = Column(String(255), nullable=False)
     name_country = Column(String(255), nullable=False)
     name_type = Column(String(255), nullable=False)
-    text_entry_fee = Column(Float, nullable=True)  
-    text_more = Column(Text, nullable=True) 
-    url_organizer = Column(String(500), nullable=True)  
+    text_entry_fee = Column(Float, nullable=True)
+    text_more = Column(Text, nullable=True)
+    url_organizer = Column(String(500), nullable=True)
     url_party = Column(String(500), nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False) 
-    user = relationship("User", back_populates="parties")  
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user = relationship("User", back_populates="parties", lazy="joined")
 
     class Config:
         orm_mode = True

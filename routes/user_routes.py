@@ -7,7 +7,7 @@ from schemas.user import UserResponse, UserCreateResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post(path="/", summary="Register a new user in the database", response_model=UserCreateResponse)
+@router.post(path="/", summary="Register a new user in the database", response_model=UserResponse)
 async def register_user(user: UserCreate, service: Annotated[UserService, Depends(UserService)]):
     """
     This endpoint allows you to register a new user by providing necessary details such as the user's name,

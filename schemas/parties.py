@@ -15,7 +15,6 @@ class PartyCreate(BaseModel):
     text_more: Optional[str] = Field(max_length=1000)
     url_organizer: Optional[str] = None
     url_party: Optional[str] = None
-    user_id: int
 
 class PartyResponse(BaseModel):
     id: int
@@ -49,7 +48,6 @@ class PartyUpdate(BaseModel):
     text_more: Optional[str] = Field(max_length=1000)
     url_organizer: Optional[str] = None
     url_party: Optional[str] = None
-    user_id: int
 
     class Config:
         orm_mode = True
