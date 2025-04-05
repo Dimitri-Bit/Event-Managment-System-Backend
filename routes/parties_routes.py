@@ -1,13 +1,14 @@
 from typing import Annotated, List,Optional
-
 from fastapi import APIRouter, HTTPException, status, Depends,Query
-from typing import Annotated, List
-from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import Response
 from schemas.parties import PartyCreate, PartyUpdate, PartyResponse
 from services.parties_service import PartiesService
+from fastapi.security import OAuth2PasswordBearer
+from services.auth_service import AuthService
 
 router = APIRouter(prefix="/party", tags=["Party"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.post(
     path="/",
@@ -18,8 +19,14 @@ router = APIRouter(prefix="/party", tags=["Party"])
     """,
     response_model=PartyResponse
 )
-async def register_party(party: PartyCreate, service: Annotated[PartiesService, Depends(PartiesService)]):
-    return await service.add_party(party)
+async def register_party(
+    party: PartyCreate,
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    user = await auth_service.get_current_user(token);
+    return await service.add_party(party, user)
 
 @router.get(
     path="/",
@@ -49,7 +56,7 @@ async def get_all_parties(
     response_model=PartyResponse
 )
 async def get_party_by_id(
-    party_id: int, 
+    party_id: int,
     service: Annotated[PartiesService, Depends(PartiesService)]
 ):
     party = await service.get_party_by_id(party_id)
@@ -72,7 +79,9 @@ async def get_party_by_id(
 async def update_party(
     party_id: int,
     update_request: PartyUpdate,
-    service: Annotated[PartiesService, Depends(PartiesService)]
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
 ):
     try:
         updated_party = await service.update_party(party_id, update_request.dict(exclude_unset=True))
@@ -91,10 +100,14 @@ async def update_party(
     """,
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_party(party_id: int, service: Annotated[PartiesService, Depends(PartiesService)]):
+async def delete_party(
+    party_id: int,
+    service: Annotated[PartiesService, Depends(PartiesService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
     try:
         await service.delete_party(party_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-

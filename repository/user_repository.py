@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -18,7 +19,7 @@ class UserRepository(Base):
             print(f"Database error occurred: {e}")
             raise e
 
-    async def get_users(self):
+    async def get_users(self) -> Sequence[User]:
         try:
             result = await self.db.execute(select(User))
             return result.scalars().all()
@@ -29,6 +30,14 @@ class UserRepository(Base):
     async def get_user_by_id(self, id:int) -> User | None:
         try:
             result = await self.db.execute(select(User).options(joinedload(User.roles).joinedload(Role.permissions)).filter(User.id==id))
+            return result.scalar()
+        except Exception as e:
+            print(f"Error fetching users: {e}")
+            raise e
+
+    async def get_user_by_email(self, email:str) -> User | None:
+        try:
+            result = await self.db.execute(select(User).options(joinedload(User.roles).joinedload(Role.permissions)).filter(User.email==email))
             return result.scalar()
         except Exception as e:
             print(f"Error fetching users: {e}")

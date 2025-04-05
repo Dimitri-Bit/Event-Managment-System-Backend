@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import user_routes,parties_routes
+from routes import user_routes, parties_routes, auth_routes
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database.database import sessionmanager
@@ -22,3 +22,4 @@ app.add_middleware(
 
 app.include_router(user_routes.router)
 app.include_router(parties_routes.router)
+app.include_router(auth_routes.router)

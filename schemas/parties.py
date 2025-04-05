@@ -5,7 +5,6 @@ from typing import Optional
 class PartyCreate(BaseModel):
     name_party: str = Field(min_length=3, max_length=255)
     url_image_full: str
-    name_organizer: str = Field(min_length=3, max_length=255)
     date_start: datetime
     date_end: datetime
     name_town: str = Field(min_length=2, max_length=255)
@@ -15,7 +14,6 @@ class PartyCreate(BaseModel):
     text_more: Optional[str] = Field(max_length=1000)
     url_organizer: Optional[str] = None
     url_party: Optional[str] = None
-    user_id: int
 
 class PartyResponse(BaseModel):
     id: int
@@ -31,7 +29,7 @@ class PartyResponse(BaseModel):
     text_more: Optional[str] = None
     url_organizer: Optional[str] = None
     url_party: Optional[str] = None
-    user_id: int
+    user_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -49,7 +47,6 @@ class PartyUpdate(BaseModel):
     text_more: Optional[str] = Field(max_length=1000)
     url_organizer: Optional[str] = None
     url_party: Optional[str] = None
-    user_id: int
 
     class Config:
         orm_mode = True
