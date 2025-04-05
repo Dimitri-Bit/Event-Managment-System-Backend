@@ -1,9 +1,10 @@
 from typing import Annotated
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
+from model.user_model import User
 from schemas.user import UserCreate
 from services.user_service import UserService
-from schemas.user import UserResponse
+from schemas.user import UserResponse, UserImageUrlUpdate
 from fastapi.security import OAuth2PasswordBearer
 from services.auth_service import AuthService
 
@@ -31,6 +32,22 @@ async def get_current_user(
     """
     user = await auth_service.get_current_user(token)
     return user;
+
+@router.put(path="/image", response_model=UserResponse)
+async def update_user_image(
+    user_update: UserImageUrlUpdate,
+    service: Annotated[UserService, Depends(UserService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    try:
+        user = await auth_service.get_current_user(token);
+        user_email = user.email
+        assert isinstance(user_email, str)
+        updated_user = await service.update_user_image_url(user_email, user_update.image_url)
+        return updated_user
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 # @router.get(path="/",summary="Retrieve a list of all users from the database", response_model=list[UserResponse])
 # def get_all_users(db: Session = Depends(get_db)):

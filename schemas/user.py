@@ -25,3 +25,6 @@ class UserLogin(BaseModel):
 
     class Config:
         orm_mode = True;
+
+class UserImageUrlUpdate(BaseModel):
+    image_url: str

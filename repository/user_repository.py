@@ -43,6 +43,20 @@ class UserRepository(Base):
             print(f"Error fetching users: {e}")
             raise e
 
+    async def update_user_image_url(self, user_email: str, image_url: str):
+        async with self.db as session:
+            query = select(User).where(User.email == user_email)
+            result = await session.execute(query)
+            user = result.unique().scalars().first()
+
+            if user:
+                user.image_url = image_url
+                await session.commit()
+                await session.refresh(user)
+                return user
+            else:
+                raise Exception(f"User with email {user_email} not found.")
+
     async def delete_users(self, user_id: int):
         try:
             result = await self.db.execute(select(User).filter(User.id == user_id))
