@@ -1,4 +1,5 @@
 from typing import Annotated, Optional, Sequence
+from fastapi import HTTPException, status
 from fastapi.params import Depends
 from model.user_model import User
 from repository.parties_repository import PartyRepository
@@ -30,7 +31,14 @@ class PartiesService:
     async def get_parties_by_user_id(self, user_id: int) -> Sequence[Party]:
         return await self.repository.get_parties_by_user_id(user_id)
 
-    async def delete_party(self, party_id: int) -> None:
+    async def delete_party(self, party_id: int, user_id: int) -> None:
+        party = await self.repository.get_party_by_id(party_id)
+        if party is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Party not found")
+
+        if party.user_id != user_id: # Mannn I wanna sleep, this code is HORRIBLE
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "You can't do that big boy")
+
         await self.repository.delete_party(party_id)
 
     def map_create_party(self, party_request: PartyCreate, user: User) -> Party:

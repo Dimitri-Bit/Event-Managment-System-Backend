@@ -121,7 +121,10 @@ async def delete_party(
     token: Annotated[str, Depends(oauth2_scheme)]
 ):
     try:
-        await service.delete_party(party_id)
+        user = await auth_service.get_current_user(token)
+        user_id = user.id
+        assert isinstance(user_id, int)
+        await service.delete_party(party_id, user_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
