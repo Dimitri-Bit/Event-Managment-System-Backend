@@ -6,6 +6,7 @@ from services.user_service import UserService
 from schemas.user import UserResponse, UserImageUrlUpdate
 from fastapi.security import OAuth2PasswordBearer
 from services.auth_service import AuthService
+from schemas.user import UserListResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -31,6 +32,19 @@ async def get_current_user(
     """
     user = await auth_service.get_current_user(token)
     return user;
+
+@router.get(path="/all", response_model=UserListResponse)
+async def get_all_users(
+    service: Annotated[UserService, Depends(UserService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)]
+):
+    try:
+        user = await auth_service.get_current_user(token)
+        users = await service.get_all_users(user)  # Assuming this returns a list of User objects
+        return {"users": users}  # Wrap the list in a dictionary with key 'users'
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
 @router.put(path="/image", response_model=UserResponse)
 async def update_user_image(

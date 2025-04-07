@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel, EmailStr, Field
 from .role import RoleResponse
 
@@ -28,3 +29,6 @@ class UserLogin(BaseModel):
 
 class UserImageUrlUpdate(BaseModel):
     image_url: str
+
+class UserListResponse(BaseModel):
+    users: List[UserResponse]

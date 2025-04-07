@@ -22,7 +22,7 @@ class UserRepository(Base):
     async def get_users(self) -> Sequence[User]:
         try:
             result = await self.db.execute(select(User))
-            return result.scalars().all()
+            return result.unique().scalars().all()
         except Exception as e:
             print(f"Error fetching users: {e}")
             raise e

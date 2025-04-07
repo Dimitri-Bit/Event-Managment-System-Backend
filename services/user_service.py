@@ -1,8 +1,10 @@
-from typing import Annotated
+from typing import Annotated, List, Sequence
+from fastapi import HTTPException, status
 from fastapi.params import Depends
+from model.role_model import Role
 from repository.role_repository import RoleRepository
 from repository.user_repository import UserRepository
-from schemas.user import UserCreate
+from schemas.user import UserCreate, UserResponse
 from model.user_model import User
 from util.password_manager import PasswordManager
 
@@ -25,6 +27,12 @@ class UserService:
         updated_user = await self.get_user_by_id(user_id)
         return updated_user
 
+    async def get_all_users(self, user: User):
+        if not self.check_admin_role(user.roles):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You can't do that big boy")
+
+        return await self.repository.get_users()
+
     async def get_user_by_id(self, id: int) -> User | None:
         db_user = await self.repository.get_user_by_id(id);
         return db_user;
@@ -42,3 +50,11 @@ class UserService:
             username=register_request.username,
             password=self.password_manager.get_password_hash(register_request.password)
         )
+
+    def check_admin_role(self, roles:Sequence[Role]):
+        for role in roles:
+            role_name = role.name
+            assert isinstance(role, Role)
+            if role_name == "admin":
+                return True
+        return False
