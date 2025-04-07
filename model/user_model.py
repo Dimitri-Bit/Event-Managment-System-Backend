@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from .base import Base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .role_user import role_user
 
 class User(Base):
@@ -13,8 +13,7 @@ class User(Base):
     roles = relationship(
         "Role",
         secondary=role_user,
-        backref="parents",
+        backref=backref("users", lazy="joined"),
         lazy="joined"
     )
-
-    parties = relationship("Party", back_populates="user")
+    parties = relationship("Party", back_populates="user", lazy="joined")
