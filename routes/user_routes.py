@@ -33,7 +33,7 @@ async def get_current_user(
     user = await auth_service.get_current_user(token)
     return user;
 
-@router.get(path="/all", response_model=UserListResponse)
+@router.get(path="", response_model=UserListResponse)
 async def get_all_users(
     service: Annotated[UserService, Depends(UserService)],
     auth_service: Annotated[AuthService, Depends(AuthService)],
