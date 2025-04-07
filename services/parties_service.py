@@ -1,6 +1,7 @@
 from typing import Annotated, Optional, Sequence
 from fastapi import HTTPException, status
 from fastapi.params import Depends
+from model.role_model import Role
 from model.user_model import User
 from repository.parties_repository import PartyRepository
 from schemas.parties import PartyCreate
@@ -32,8 +33,13 @@ class PartiesService:
 
     async def update_party(self, party_id: int, user_id: int, update_request: dict) -> Party:
         party = await self.repository.get_party_by_id(party_id)
+        user = await self.user_service.get_user_by_id(user_id)
+        assert isinstance(user, User)
         if party is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Party not found")
+
+        if self.check_admin_role(user.roles):
+            return await self.repository.update_party(party_id, update_request)
 
         if party.user_id != user_id:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "You can't do that big boy")
@@ -53,7 +59,7 @@ class PartiesService:
         assert isinstance(user, User)
         assert isinstance(party, Party)
 
-        if user.roles.contains("admin"):
+        if self.check_admin_role(user.roles):
             await self.repository.delete_party(party_id)
             return
 
@@ -78,3 +84,11 @@ class PartiesService:
             url_party=party_request.url_party,
             user_id=user.id
         )
+
+    def check_admin_role(self, roles:Sequence[Role]):
+        for role in roles:
+            role_name = role.name
+            assert isinstance(role, Role)
+            if role_name == "admin":
+                return True
+        return False
