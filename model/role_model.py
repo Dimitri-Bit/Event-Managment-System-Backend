@@ -11,6 +11,6 @@ class Role(Base):
     permissions = relationship(
         "Permission",
         secondary=permission_role,
-        backref="parents",
+        backref="roles",
         lazy="joined"
     )

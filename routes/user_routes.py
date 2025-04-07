@@ -1,7 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
-from model.user_model import User
 from schemas.user import UserCreate
 from services.user_service import UserService
 from schemas.user import UserResponse, UserImageUrlUpdate
