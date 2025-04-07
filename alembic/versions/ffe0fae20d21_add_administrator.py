@@ -40,9 +40,9 @@ def upgrade() -> None:
     )
 
 
-    query = op.execute(sa.select(User).filter(User.email == "admin@admin.com"))
+    query = op.get_bind().execute(sa.select(User).filter(User.email == "admin@admin.com"))
     admin_user = query.scalar()
-    admin_user_id = admin_user.id
+    admin_user_id = admin_user
 
     op.bulk_insert(
         sa.table("role_user", sa.Column("role_id"), sa.Column("user_id")),
