@@ -29,7 +29,7 @@ class UserRepository(Base):
 
     async def get_user_by_id(self, id:int) -> User | None:
         try:
-            result = await self.db.execute(select(User).options(joinedload(User.roles).joinedload(Role.permissions)).filter(User.id==id))
+            result = await self.db.execute(select(User).filter(User.id==id))
             return result.scalar()
         except Exception as e:
             print(f"Error fetching users: {e}")

@@ -24,18 +24,20 @@ class UserService:
         user_id = db_user.id
         assert isinstance(user_id, int)
         await self.role_repository.set_user_role(user_id, "user")
-        updated_user = await self.get_user_by_id(user_id)
+        updated_user = await self.repository.get_user_by_id(user_id)
         return updated_user
+
+    async def get_user_by_id(self, user_id: int, user: User):
+        if not self.check_admin_role(user.roles):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You can't do that big boy")
+
+        return await self.repository.get_user_by_id(user_id);
 
     async def get_all_users(self, user: User):
         if not self.check_admin_role(user.roles):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You can't do that big boy")
 
         return await self.repository.get_users()
-
-    async def get_user_by_id(self, id: int) -> User | None:
-        db_user = await self.repository.get_user_by_id(id);
-        return db_user;
 
     async def update_user_image_url(self, user_email: str, image_url: str):
         try:

@@ -33,6 +33,22 @@ async def get_current_user(
     user = await auth_service.get_current_user(token)
     return user;
 
+@router.get(path="/{id}", response_model=UserResponse)
+async def get_user_by_id(
+    service: Annotated[UserService, Depends(UserService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    id: int
+):
+    try:
+        user = await auth_service.get_current_user(token)
+        retrieved_user = await service.get_user_by_id(id, user)
+        if retrieved_user is None: # Uh oh :(
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        return retrieved_user
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+
 @router.get(path="", response_model=UserListResponse)
 async def get_all_users(
     service: Annotated[UserService, Depends(UserService)],
@@ -41,8 +57,8 @@ async def get_all_users(
 ):
     try:
         user = await auth_service.get_current_user(token)
-        users = await service.get_all_users(user)  # Assuming this returns a list of User objects
-        return {"users": users}  # Wrap the list in a dictionary with key 'users'
+        users = await service.get_all_users(user)
+        return {"users": users}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
