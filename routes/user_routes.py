@@ -62,6 +62,20 @@ async def get_all_users(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
+@router.delete(path="/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    service: Annotated[UserService, Depends(UserService)],
+    auth_service: Annotated[AuthService, Depends(AuthService)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    id: int
+):
+    try:
+        user = await auth_service.get_current_user(token)
+        await service.delete_user(user, id)
+        return None
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+
 @router.put(path="/image", response_model=UserResponse)
 async def update_user_image(
     user_update: UserImageUrlUpdate,
