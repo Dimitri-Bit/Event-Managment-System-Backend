@@ -43,6 +43,8 @@ party_image_links = [
     "https://i.pinimg.com/736x/98/46/19/984619ae0c784b642df8525cec1ca6ae.jpg",
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFcKudiAf4jwQoq7m7IE0lGFSKmekxaYzbvw&s",
     "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://cataas.com/cat",
+    "https://cataas.com/cat",
     "https://cataas.com/cat"
 ]
 
