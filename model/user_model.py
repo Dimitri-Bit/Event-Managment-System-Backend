@@ -14,6 +14,14 @@ class User(Base):
         "Role",
         secondary=role_user,
         backref=backref("users", lazy="joined"),
-        lazy="joined"
+        lazy="joined",
+        cascade="all, delete",
+        passive_deletes=True
     )
-    parties = relationship("Party", back_populates="user", lazy="joined")
+    parties = relationship(
+        "Party",
+        back_populates="user",
+        lazy="joined",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
