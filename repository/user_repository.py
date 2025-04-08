@@ -57,7 +57,7 @@ class UserRepository(Base):
             else:
                 raise Exception(f"User with email {user_email} not found.")
 
-    async def delete_users(self, user_id: int):
+    async def delete_user(self, user_id: int):
         try:
             result = await self.db.execute(select(User).filter(User.id == user_id))
             user = result.scalars().first()
@@ -67,7 +67,6 @@ class UserRepository(Base):
 
             await self.db.delete(user)
             await self.db.commit()
-            return user
         except SQLAlchemyError as e:
             print(f"Database error occurred: {e}")
             await self.db.rollback()

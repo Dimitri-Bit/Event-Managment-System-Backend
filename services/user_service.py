@@ -46,6 +46,12 @@ class UserService:
         except Exception as e:
             raise e
 
+    async def delete_user(self, user: User, user_id: int):
+        if not self.check_admin_role(user.roles):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You can't do that big boy")
+
+        return await self.repository.delete_user(user_id);
+
     def map_register_request(self, register_request: UserCreate) -> User:
         return User(
             email=register_request.email,
