@@ -1,10 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime,ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
 class Party(Base):
     __tablename__ = "parties"
-
     id = Column(Integer, primary_key=True, index=True)
     name_party = Column(String(255), nullable=False)
     url_image_full = Column(String(500), nullable=False)
@@ -18,8 +17,7 @@ class Party(Base):
     text_more = Column(Text, nullable=True)
     url_organizer = Column(String(500), nullable=True)
     url_party = Column(String(500), nullable=True)
-
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="parties", lazy="joined")
 
     class Config:

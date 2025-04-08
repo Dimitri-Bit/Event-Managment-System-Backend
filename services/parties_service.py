@@ -4,17 +4,17 @@ from fastapi.params import Depends
 from model.role_model import Role
 from model.user_model import User
 from repository.parties_repository import PartyRepository
+from repository.user_repository import UserRepository
 from schemas.parties import PartyCreate
 from model.parties_model import Party
-from services.user_service import UserService
 
 class PartiesService:
     def __init__(self,
         repository: Annotated[PartyRepository, Depends(PartyRepository)],
-        user_service: Annotated[UserService, Depends(UserService)]
+        user_repository: Annotated[UserRepository, Depends(UserRepository)]
     ):
         self.repository = repository
-        self.user_service = user_service
+        self.user_repository = user_repository
 
     async def add_party(self, create_request: PartyCreate, user: User) -> Party:
         db_party = self.map_create_party(create_request, user)
@@ -33,7 +33,7 @@ class PartiesService:
 
     async def update_party(self, party_id: int, user_id: int, update_request: dict) -> Party:
         party = await self.repository.get_party_by_id(party_id)
-        user = await self.user_service.get_user_by_id(user_id)
+        user = await self.user_repository.get_user_by_id(user_id)
         assert isinstance(user, User)
         if party is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Party not found")
@@ -55,7 +55,7 @@ class PartiesService:
         if party is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Party not found")
 
-        user = await self.user_service.get_user_by_id(user_id)
+        user = await self.user_repository.get_user_by_id(user_id)
         assert isinstance(user, User)
         assert isinstance(party, Party)
 
