@@ -19,6 +19,33 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 password_manager = PasswordManager()
 
+party_image_links = [
+    "https://th.bing.com/th/id/OIP.8KQ23-hfDmIAJ85fdS3E7QHaE7?rs=1&pid=ImgDetMain",
+    "https://media.timeout.com/images/103926031/image.jpg",
+    "https://images.startups.co.uk/wp-content/uploads/2011/04/22180804/How-to-start-a-party-and-event-planning-business.jpg",
+    "https://th.bing.com/th/id/OIP.Rfv_NnBdYFGpt-WinNik7QHaFj?rs=1&pid=ImgDetMain",
+    "https://images.pexels.com/photos/1047940/pexels-photo-1047940.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+    "https://images.pexels.com/photos/1047940/pexels-photo-1047940.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+    "https://th.bing.com/th/id/OIP.Hv1XLYTy0G7ibP-vwD6eWgHaE7?rs=1&pid=ImgDetMain",
+    "https://cdn.pixabay.com/photo/2023/01/18/14/39/family-7727035_1280.jpg",
+    "https://static.vecteezy.com/system/resources/thumbnails/024/308/218/small_2x/happy-people-with-champagne-on-christmas-party-illustration-ai-generative-free-photo.jpg",
+    "https://media.textadventures.co.uk/coverart/b69281d8-93b6-4c6a-a964-441dddfe8a9d.jpg",
+    "https://th.bing.com/th/id/OIP.wgvkmmL2XnbI9iuPo9gt7QHaE8?rs=1&pid=ImgDetMain",
+    "https://static.vecteezy.com/system/resources/thumbnails/012/429/086/small_2x/multiethnic-group-of-casual-business-people-having-confetti-party-free-photo.JPG",
+    "https://images.pexels.com/photos/2342400/pexels-photo-2342400.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "https://th.bing.com/th/id/R.7abe7609548919d06702ffcab85bfb81?rik=T%2bGAjbaiB2A1Gg&pid=ImgRaw&r=0",
+    "https://www2.gvsu.edu/orazemm/pictures/PartyPicturesfrom200405/photos/photo21.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM182UefugnrYpe0mlBvsA4wp0bG9UYaltFg&s",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1m1BwE8YASlmtY7-xqRH3-ecSNGZ7d4xEWg&s",
+    "https://mynight.aktualno.si/wp-content/uploads/2023/11/1039896574098658.jpeg",
+    "https://cdn-az.allevents.in/events4/banners/6816233777858eb626bfc4dcdc7022ef12ffec2e1b2386875c44b81afdafe400-rimg-w1200-h675-dc1d1c5a-gmir?v=1743862644",
+    "https://i.redd.it/party-on-80s-edition-vintage-photos-of-parties-in-the-1980s-v0-i8pboep7474c1.jpg?width=640&format=pjpg&auto=webp&s=89dc8dda596669aa467375dec2aa49b67ac6e81d",
+    "https://i.pinimg.com/736x/98/46/19/984619ae0c784b642df8525cec1ca6ae.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFcKudiAf4jwQoq7m7IE0lGFSKmekxaYzbvw&s",
+    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://cataas.com/cat"
+]
+
 party_names = [
     "Keg Stand Kingdom",
     "Toga Takedown",
@@ -187,7 +214,7 @@ def generate_parties_list() -> List[dict]:
         party = {
             "id": (i-1),
             "name_party": party_names[i],
-            "url_image_full": "https://cataas.com/cat",
+            "url_image_full": party_image_links[i],
             "name_organizer": f"username{i}",
             "date_start": date_list[i]["start_date"],
             "date_end": date_list[i]["end_date"],
