@@ -63,7 +63,7 @@ class PartiesService:
             await self.repository.delete_party(party_id)
             return
 
-        if party.user_id == user.id: # Mannn I wanna sleep, this code is HORRIBLE
+        if party.user_id != user.id: # Mannn I wanna sleep, this code is HORRIBLE
             raise HTTPException(status.HTTP_404_NOT_FOUND, "You can't do that big boy")
         else:
             await self.repository.delete_party(party_id)
